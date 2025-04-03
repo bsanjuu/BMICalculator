@@ -1,0 +1,3 @@
+[submodule "bmi-frontend"]
+	path = bmi-frontend
+	url = https://github.com/bsanjuu/bmi-frontend.git

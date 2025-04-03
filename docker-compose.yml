@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: bmi-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2324
+      POSTGRES_DB: bmi_db
+    ports:
+      - "5433:5433"
+
+  backend:
+    build: ./BMICalc  # Path to Spring Boot backend
+    container_name: bmi-backend
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5433/bmi_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 2324
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./bmi-frontend  # Path to React frontend
+    container_name: bmi-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
