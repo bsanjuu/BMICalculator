@@ -1,18 +1,27 @@
-FROM node:16 AS build
-
+# Build stage
+FROM node:18-alpine AS builder
 WORKDIR /app
-COPY . /app
-RUN npm install
+
+# Install dependencies first (cached unless package.json changes)
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy source and build
+COPY . .
 RUN npm run build
 
-# Production phase
-FROM nginx:alpine
+# Production stage
+FROM nginx:1.25-alpine
 
-# Copy the build files to Nginx
-COPY --from=build /app/build /usr/share/nginx/html
+# Remove default nginx static files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Expose the port Nginx will use
+# Copy built assets from builder
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port and run
 EXPOSE 80
-
-# Start the Nginx server
 CMD ["nginx", "-g", "daemon off;"]

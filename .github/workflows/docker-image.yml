@@ -12,6 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Verify Secrets Exist
       run: |
         echo "Username secret exists: ${{ secrets.DOCKER_HUB_USERNAME != '' }}"
@@ -25,14 +26,12 @@ jobs:
 
     - name: Build and push backend
       run: |
-        docker build -t bsanjuu/bmi-backend:latest ./BMICalc
+        cd BMICalc
+        docker build -t bsanjuu/bmi-backend:latest .
         docker push bsanjuu/bmi-backend:latest
-
-    - name: Login to Docker Hub
-      run: |
-        echo ${{ secrets.DOCKER_HUB_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
     - name: Build and push frontend
       run: |
-        docker build -t bsanjuu/bmi-frontend:latest ./bmi-frontend
-        docker push bsanjuu/bmi-frontend:latest
+        cd bmi-frontend
+        docker build -t bsanjuu/bmi-frontend:latest .
+        docker push bsanjuu/bmi-frontend:lates  t

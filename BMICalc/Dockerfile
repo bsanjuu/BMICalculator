@@ -1,14 +1,13 @@
-# Use an official Java runtime as a parent image
-FROM openjdk:17-jdk-slim
-
-# Set the working directory inside the container
+# Build stage
+FROM maven:3.8.6-eclipse-temurin-17 AS builder
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Copy the JAR file into the container
-COPY target/BMICalc-1.jar /app/bmicalc.jar
-
-# Expose the port the app will run on
+# Runtime stage
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+COPY --from=builder /app/target/BMICalc-*.jar ./app.jar
 EXPOSE 8080
-
-# Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "bmicalc.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
